@@ -1,0 +1,70 @@
+{
+  "atoms": [
+    {
+      "id": "c",
+      "atomic_number": 6,
+      "position": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "i",
+      "atomic_number": 53,
+      "position": [
+        1,
+        -1,
+        -1
+      ]
+    },
+    {
+      "id": "br",
+      "atomic_number": 35,
+      "position": [
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "cl",
+      "atomic_number": 17,
+      "position": [
+        -1,
+        1,
+        -1
+      ]
+    },
+    {
+      "id": "h",
+      "atomic_number": 1,
+      "position": [
+        -1,
+        -1,
+        1
+      ]
+    }
+  ],
+  "bonds": [
+    [
+      "c",
+      "i"
+    ],
+    [
+      "c",
+      "br"
+    ],
+    [
+      "c",
+      "cl"
+    ],
+    [
+      "c",
+      "h"
+    ]
+  ],
+  "centers": [
+    "c"
+  ]
+}

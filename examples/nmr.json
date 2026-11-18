@@ -1,0 +1,45 @@
+{
+  "channel": 1,
+  "acquisitions": [
+    {
+      "phase_degrees": 0,
+      "receiver_degrees": 0,
+      "signal": [
+        [
+          2,
+          0
+        ]
+      ]
+    },
+    {
+      "phase_degrees": 90,
+      "receiver_degrees": 0,
+      "signal": [
+        [
+          0,
+          2
+        ]
+      ]
+    },
+    {
+      "phase_degrees": 180,
+      "receiver_degrees": 0,
+      "signal": [
+        [
+          -2,
+          0
+        ]
+      ]
+    },
+    {
+      "phase_degrees": 270,
+      "receiver_degrees": 0,
+      "signal": [
+        [
+          0,
+          -2
+        ]
+      ]
+    }
+  ]
+}
