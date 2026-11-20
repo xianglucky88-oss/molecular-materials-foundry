@@ -1,0 +1,115 @@
+{
+  "candidates": [
+    {
+      "id": "labeled_species",
+      "composition": {
+        "X": 4
+      },
+      "populations": {
+        "X": [
+          [
+            10.0,
+            0.8
+          ],
+          [
+            11.0,
+            0.2
+          ]
+        ]
+      },
+      "labeling": [
+        {
+          "element": "X",
+          "labeled_isotope": 1,
+          "bounds": [
+            0.0,
+            1.0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "reference_species",
+      "composition": {
+        "X": 2,
+        "Y": 2
+      },
+      "populations": {
+        "X": [
+          [
+            10.0,
+            0.8
+          ],
+          [
+            11.0,
+            0.2
+          ]
+        ],
+        "Y": [
+          [
+            1.0,
+            0.5
+          ],
+          [
+            2.0,
+            0.5
+          ]
+        ]
+      }
+    }
+  ],
+  "instrument": {
+    "resolution": 500.0,
+    "rule": "fwhm",
+    "scaling": "constant",
+    "merge_factor": 1.0
+  },
+  "observations": [
+    {
+      "coordinate": 22.0,
+      "intensity": 95
+    },
+    {
+      "coordinate": 23.0,
+      "intensity": 240
+    },
+    {
+      "coordinate": 24.0,
+      "intensity": 198
+    },
+    {
+      "coordinate": 25.0,
+      "intensity": 60
+    },
+    {
+      "coordinate": 26.0,
+      "intensity": 6
+    },
+    {
+      "coordinate": 40.0,
+      "intensity": 36
+    },
+    {
+      "coordinate": 41.0,
+      "intensity": 215
+    },
+    {
+      "coordinate": 42.0,
+      "intensity": 484
+    },
+    {
+      "coordinate": 43.0,
+      "intensity": 484
+    },
+    {
+      "coordinate": 44.0,
+      "intensity": 180
+    }
+  ],
+  "likelihood": "poisson",
+  "confidence": 0.95,
+  "budget": {
+    "max_evaluations": 80000,
+    "max_seconds": 20.0
+  }
+}
