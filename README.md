@@ -19,7 +19,7 @@ As a library, use `molecular_materials_foundry.api.dispatch(path, payload)` or i
 
 | Endpoint | Meaning | Supported scope |
 |---|---|---|
-| `/nmr` | Selects a coherence-channel residue from complex time-domain acquisitions and their pulse/receiver phases. Each complex sample is `[real, imaginary]`. | One complete uniformly spaced single-axis cycle, 2 to 64 acquisitions. Observed signal = physical signal * exp(-i * receiver phase); a channel q contributes exp(i * q * pulse phase). Channel q is identified modulo the acquisition count, reported as `alias_modulus`. Multiple indirect dimensions and incomplete schedules are rejected. |
+| `/nmr` | Selects and, where the design supports it, quantifies coherence channels from complex time-domain acquisitions and their pulse/receiver phases. Each complex sample is `[real, imaginary]`. | Legacy contract: one complete uniformly spaced single-axis cycle, 2 to 64 acquisitions, returning the original phase-cycled signal and `alias_modulus`. General contract: a finite candidate channel set, incomplete cycles (missing steps reported, never zero filled), `states`/`states_tppi`/`none` quadrature declarations, and repeated measurements or explicit per-acquisition variances. Observed signal = physical signal * exp(-i * receiver phase); a channel q contributes exp(i * q * pulse phase). Returns identifiable channels with complex estimates, standard errors and 95% intervals, plus identifiability rank, alias classes, conditioning and effective acquisition. |
 | `/isotopes` | Enumerates complete isotope composition probabilities and neutral mass or ion mass/charge. | H/C/N/O/P default populations or explicit `[mass_u, probability]` arrays. The embedded numbers are fixed example natural-abundance conventions, not a universal abundance certificate. Exact composition enumeration up to 100000 states; no probability cutoff, instrument broadening or adduct inference. Ion mass subtracts charge times electron mass. Custom populations must sum to one. Numerically unrepresentable nonzero probabilities cause an error. |
 | `/stereo` | Reports a tetrahedral descriptor when immediate ligand priorities and geometry resolve it. | One connected acyclic single-bond graph; all hydrogens explicit. Immediate priority uses atomic number and, for same-element explicitly labeled isotopes, mass number. Four distinct immediate priorities are required. Deeper ligand comparisons, rings and multiple bonds are outside this scope. Coordinates must describe the tetrahedral atom arrangement with the center strictly inside the ligand tetrahedron, not a 2D drawing. Unknown priority and degenerate geometry produce explicit statuses, not guessed descriptors. |
 | `/reflections` | Groups reflection indices using explicit reciprocal-space point-group operations and combines independent intensities using known variances. | Operations must be a complete finite group of unimodular integer 3x3 matrices, including identity. Default `friedel: true` merges opposite reflections. Set false to preserve them unless they are already related by an explicitly supplied operation. Does not use space-group translations or infer systematic absences. Negative background-corrected intensities are allowed; variances must be positive. |
@@ -29,6 +29,44 @@ As a library, use `molecular_materials_foundry.api.dispatch(path, payload)` or i
 Optional trajectory bonds require `max_bond_length`; unwrapped bonds that exceed that declared bound are rejected. Without explicit flags, the first frame defines the atom image origins; the service does not infer a globally unwrapped molecular reference frame. Lag is measured in frame indices and no elapsed-time or diffusion coefficient is inferred. An empty lag window is valid when the trajectory is too short.
 
 A phase-cycle channel is aliased modulo the cycle length; a short schedule cannot uniquely distinguish all integer coherence orders. The service reports this limitation instead of labeling the selected channel as globally unique. Similarly, the restricted stereochemical descriptor is not a full implementation of every CIP sequence rule.
+
+### NMR quantitative model
+
+The general `/nmr` contract fits the receiver-corrected linear model
+`y_j = sum_q exp(i * q * phase_j) * a_q + e_j` by weighted complex least
+squares over the declared `candidate_channels`. The original single-axis
+uniform-cycle request keeps its exact input shape and original response
+(`single-axis-uniform-phase-cycle-v1`); adding any of `candidate_channels`,
+`plan`, `signals`, `variance`, `increment` or `quadrature_component` selects
+the general contract (`general-linear-model-coherence-v1`).
+
+* **Identifiability is separate from instability.** A channel whose design
+  column lies in an alias class (for example +q/-q without sign-discriminating
+  quadrature) or in a generic rank-deficient span is returned as
+  `unidentifiable` with a `null` estimate; it is never recovered by zero
+  filling. A full-rank but badly conditioned design is returned as
+  `identifiable_ill_conditioned`. Rank, condition number and alias classes are
+  reported under `identifiability`.
+* **Quadrature.** `plan.quadrature` is one of `none`, `states` or
+  `states_tppi`. With States/States-TPPI each acquisition names its
+  `increment` and `quadrature_component` (`real`/`imaginary`); the documented
+  phase conventions are validated and missing partners or increments are
+  listed. A missing orthogonal component remains an absent observation rather
+  than a manufactured zero.
+* **Variance and repeats.** An acquisition may carry one `signal`, several
+  `signals` repeats, and/or a positive `variance` (one scalar or one value per
+  time sample). Explicit variance is treated as known; repeats otherwise give
+  an estimated mean variance. When every acquisition has variance, weighted
+  least squares with normal-limit intervals is used; otherwise ordinary least
+  squares reports residual-variance intervals with the residual degrees of
+  freedom, and a saturated design is marked unquantified. Heteroscedastic
+  precision is summarized through the Kish effective sample size.
+* **Long time domains** are processed in bounded blocks whose factorization
+  is cached per variance profile, so memory does not scale with the full
+  trace. The library also exposes
+  `nmr.calibration.calibration_check(...)`, a seeded Monte Carlo check on a
+  known-channel, known-noise control sample that reports bias, RMSE and 95%
+  coverage, including the count of unidentifiable trials.
 
 ## Responsibility boundaries
 
